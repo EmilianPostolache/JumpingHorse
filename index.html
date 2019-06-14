@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<!--suppress HtmlFormInputWithoutLabel -->
+<html class="gr__marcoschaerf_github_io" lang="EN"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<script id="vertex-shader" type="x-shader/x-vertex">
+  attribute vec4 vPosition;
+  attribute vec3 vNormal;
+  attribute vec2 vTexCoord1;
+  attribute vec2 vTexCoord2;
+
+  uniform mat4 modelViewMatrix;
+  uniform mat4 projectionMatrix;
+  uniform mat3 normalMatrix;
+  uniform mat4 cameraMatrix;
+  uniform vec4 lightPos;
+
+  varying vec3 fNormal;
+  varying vec3 fLight;
+  varying vec2 fTexCoord1;
+  varying vec2 fTexCoord2;
+
+  void main()
+  {
+   vec3 eyePosition = (modelViewMatrix * vPosition).xyz;
+   vec3 eyeLightPos = (cameraMatrix * lightPos).xyz;
+   fNormal = normalMatrix * vNormal;
+   fLight = eyeLightPos - eyePosition;
+   fTexCoord1 = vTexCoord1;
+   fTexCoord2 = vTexCoord2;
+
+   gl_Position = projectionMatrix * modelViewMatrix * vPosition;
+  }
+ </script>
+<script id="fragment-shader" type="x-shader/x-fragment">
+  precision mediump float;
+
+  uniform vec4 ambientProd;
+  uniform vec4 diffuseProd;
+  uniform sampler2D texMap1;
+  uniform sampler2D texMap2;
+
+  varying vec3 fNormal;
+  varying vec3 fLight;
+  varying vec2 fTexCoord1;
+  varying vec2 fTexCoord2;
+
+  void main()
+  {
+   float Kd = max(dot(normalize(fNormal), normalize(fLight)), 0.0);
+   gl_FragColor = vec4(ambientProd.xyz + Kd * diffuseProd.xyz, 1) *
+   texture2D(texMap2, fTexCoord2) * texture2D(texMap1, fTexCoord1);
+  }
+ </script>
+<script type="text/javascript" src="./Common/webgl-utils.js"></script>
+<script type="text/javascript" src="./Common/initShaders.js"></script>
+<script type="text/javascript" src="./Common/MV.js"></script>
+<script type="text/javascript" src="jump.js"></script>
+ <title></title>
+
+</head><body data-gr-c-s-loaded="true">
+<canvas id="gl-canvas" width="800" height="800" style="display:inline-block;vertical-align: middle;">
+ Oops ... your browser doesn't support the HTML5 canvas element
+</canvas>
+<p>
+<button id="button">Animate</button>
+</p>
+
+<table  style="display:inline-block; vertical-align: middle; horiz-align: center;">
+<tr>
+ <td>r</td>
+ <td>5</td>
+<td><input id="rSlider" type="range"
+           min="5" max="40" step="0.1" value ="30" /></td>
+<td>40</td>
+<td><b><span id="displayR">30</span></b></td>
+</tr>
+<tr>
+ <td>theta</td>
+ <td>-90</td>
+ <td> <input id="thetaSlider" type="range"
+             min="-90" max="0" step="1.0" value ="-20" /></td>
+ <td>0</td>
+ <td><b><span id="displayTheta">-20</span></b></td>
+</tr>
+<tr>
+ <td>phi</td>
+ <td>-180.0</td>
+ <td> <input id="phiSlider" type="range"
+             min="-180" max="180" step="1" value ="70" /></td>
+ <td>180.0</td>
+ <td><b><span id="displayPhi">70</span></b></td>
+</tr>
+</table>
+
+</body></html>
